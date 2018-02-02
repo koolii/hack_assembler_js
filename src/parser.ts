@@ -21,4 +21,12 @@ export default class Parser {
 
     this.readLine = readLine;
   }
+
+  hasMoreCommands() {}
+  advance() {}
+  commandType() {}
+  symbol() {}
+  dest() {}
+  comp() {}
+  jump() {}
 }
