@@ -4,7 +4,7 @@
   "description": "this is one of assemblers made of JavaScript(Node.js) for Hack language",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node ./dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "tslint --format stylish 'src/**/*.ts'",
     "compile": "tsc",
@@ -27,7 +27,10 @@
     "url": "https://github.com/koolii/hack_assembler_js/issues"
   },
   "homepage": "https://github.com/koolii/hack_assembler_js#readme",
-  "dependencies": {},
+  "dependencies": {
+    "@types/fs-extra": "^5.0.0",
+    "fs-extra": "^5.0.0"
+  },
   "devDependencies": {
     "@types/es6-promise": "^3.3.0",
     "@types/node": "^9.4.0",
