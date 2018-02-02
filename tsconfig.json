@@ -1,17 +1,21 @@
 {
   "compilerOptions": {
+    "outDir": "./dist",
+    "allowJs": true,
+    "target": "es2017",
     "module": "commonjs",
+    "charset": "utf-8",
     "noImplicitAny": true,
     "removeComments": true,
     "preserveConstEnums": true,
     "sourceMap": true,
-    "target": "es2017",
     "types": [
       "node"
     ]
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*",
+    "index.ts"
   ],
   "exclude": [
     "node_modules"

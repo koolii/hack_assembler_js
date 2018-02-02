@@ -4,7 +4,10 @@
   "description": "this is one of assemblers made of JavaScript(Node.js) for Hack language",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "tslint --format stylish 'src/**/*.ts'",
+    "compile": "tsc",
+    "build": "yarn lint && yarn compile"
   },
   "repository": {
     "type": "git",
