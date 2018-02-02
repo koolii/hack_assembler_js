@@ -8,6 +8,7 @@
       300
     ],
     "variable-name": false,
-    "import-name": false
+    "import-name": false,
+    "semicolon": [false, "never"]
   }
 }
