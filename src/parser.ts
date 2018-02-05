@@ -30,6 +30,5 @@ export default class Parser {
   }
 
   hasMoreCommands() {
-
   }
 }
