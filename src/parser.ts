@@ -2,11 +2,11 @@ import * as fs from 'fs-extra'
 import { createInterface, ReadLine } from 'readline'
 
 // A_COMMAND: @Xxxを表し、Xxxはシンボルか10進数の数
-const A_COMMAND = /^@(\w+)/
+const A_COMMAND: RegExp = /^@(\w+)/
 // C_COMMAND: dest=comp:jump(destもしくはjumpのどちらかは空であるかもしれない、destが空なら`=`が、jumpが空なら`;`が省略される)
-const C_COMMAND = /^$/
+const C_COMMAND: RegExp = /[=|;]/
 // L_COMMAND: 疑似コマンド`(Xxx)`を意味し、Xxxはシンボルとなる
-const L_COMMAND = /\((\w+)\)/
+const L_COMMAND: RegExp = /\((\w+)\)/
 
 export default class Parser {
   readLine: ReadLine
