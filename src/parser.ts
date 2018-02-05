@@ -1,6 +1,13 @@
 import * as fs from 'fs-extra'
 import { createInterface, ReadLine } from 'readline'
 
+// A_COMMAND: @Xxxを表し、Xxxはシンボルか10進数の数
+const A_COMMAND = /^@(\w+)/
+// C_COMMAND: dest=comp:jump(destもしくはjumpのどちらかは空であるかもしれない、destが空なら`=`が、jumpが空なら`;`が省略される)
+const C_COMMAND = /^$/
+// L_COMMAND: 疑似コマンド`(Xxx)`を意味し、Xxxはシンボルとなる
+const L_COMMAND = /\((\w+)\)/
+
 export default class Parser {
   readLine: ReadLine
   filepath: string
@@ -20,5 +27,9 @@ export default class Parser {
     })
 
     this.readLine = readLine;
+  }
+
+  hasMoreCommands() {
+
   }
 }
