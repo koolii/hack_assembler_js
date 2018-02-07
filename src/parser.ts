@@ -5,7 +5,7 @@ import { createInterface, ReadLine } from 'readline'
 const COMMAND = {
   // A_COMMAND: @Xxxを表し、Xxxはシンボルか10進数の数
   A: {
-    reg: /^@(\w +) /,
+    reg: /@(\w+)/,
     type: 'A_COMMAND',
   },
   // C_COMMAND: dest=comp:jump(destもしくはjumpのどちらかは空であるかもしれない、destが空なら`=`が、jumpが空なら`;`が省略される)
@@ -35,7 +35,8 @@ export default class Parser {
     })
 
     readLine.on('line', (line) => {
-      console.log(`coming a line: ${line}`)
+      // console.log(`[coming a line]: ${line}`)
+      this.parse(line)
     })
 
     this.readLine = readLine;
@@ -43,7 +44,10 @@ export default class Parser {
 
   parse(line: string) {
     if (this.hasMoreCommands(line)) {
+      // console.log(`[matched]`)
       this.advance(line)
+    } else {
+      console.log(`[skip no meaning line]: ${line}`)
     }
   }
 
@@ -52,25 +56,36 @@ export default class Parser {
   }
 
   advance(line: string) {
-    const type = this.commandType(line)
-    const symbol = [COMMAND.A.type, COMMAND.L.type].includes(type) ? this.symbol(line, type) : null
+    const command = this.commandType(line)
+    const symbol = COMMAND.C === command ? null : this.symbol(line, command)
   }
 
   commandType(line: string) {
     const a = line.match(COMMAND.A.reg)
     if (a) {
-      return a[1]
+      return COMMAND.A
     }
     const c = line.match(COMMAND.C.reg)
     if (c) {
-      return c[1]
+      return COMMAND.C
     }
     const l = line.match(COMMAND.L.reg)
-    if (a) {
-      return l[1]
+    if (l) {
+      return COMMAND.L
     }
   }
 
-  symbol(line: string, type: string) {
+  symbol(line: string, command: any) {
+    console.log(`[symbol] command: ${JSON.stringify(command)}, line: ${line}`)
+
+    // 行の後ろに記述してあるコメント(//以降)を削除する実装をする必要がある
+    // 無意味な空白を削除する必要がある
+
+    const result = line.match(command.reg)
+    if (result === null) {
+      throw new Error(`[can't parse a line] command: ${command.type}, line: ${line}`)
+    }
+    // console.log(`TYPE: ${command.type}, reuslt: ${JSON.stringify(result)}`)
+    return result[1]
   }
 }
