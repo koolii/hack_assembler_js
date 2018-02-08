@@ -34,9 +34,10 @@ export default class Parser {
     })
 
     readLine.on('line', (line) => {
-      // console.log(`[coming a line]: ${line}`)
       const formatedLine = this.cutTrash(line)
-      this.parse(formatedLine)
+      if (formatedLine !== '') {
+        this.parse(formatedLine)
+      }
     })
 
     this.readLine = readLine;
@@ -44,7 +45,6 @@ export default class Parser {
 
   parse(line: string) {
     if (this.hasMoreCommands(line)) {
-      // console.log(`[matched]`)
       this.advance(line)
     } else {
       console.log(`[skip no meaning line]: ${line}`)
@@ -52,15 +52,10 @@ export default class Parser {
   }
 
   cutTrash(plainLine: string) {
+    // remove empty letter and comment part
     const fillOutEmpty = plainLine.replace(/ /g, '')
-    // 行の後ろに記述してあるコメント(//以降)を削除する実装をする必要がある
-    // 無意味な空白を削除する必要がある
     const hasCommentCharacter = fillOutEmpty.match('//')
-    const line = !hasCommentCharacter ? plainLine : plainLine.substring(0, hasCommentCharacter.index)
-
-    console.log(`[cutTrash] ${line}`)
-
-    return line
+    return !hasCommentCharacter ? fillOutEmpty : fillOutEmpty.substring(0, hasCommentCharacter.index)
   }
 
   hasMoreCommands(line: string) {
