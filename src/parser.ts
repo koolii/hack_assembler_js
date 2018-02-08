@@ -24,11 +24,11 @@ const COMMAND = {
 export default class Parser {
   readLine: ReadLine
   filepath: string
-  logger: Logger
+  log: Logger
 
   constructor(filepath: string) {
     this.filepath = filepath
-    this.logger = new Logger(Parser.name)
+    this.log = new Logger(Parser)
   }
 
   load() {
@@ -51,7 +51,7 @@ export default class Parser {
     if (this.hasMoreCommands(line)) {
       this.advance(line)
     } else {
-      this.logger.info('parse', `[skip no meaning line]: ${line}`)
+      this.log.parse(`[skip no meaning line]: ${line}`)
     }
   }
 
@@ -71,28 +71,25 @@ export default class Parser {
     const symbol = COMMAND.C === command ? null : this.symbol(line, command)
 
     if (!symbol) {
-      // this.logger.info(`${Object.getOwnPropertyNames(Parser.prototype)}`);
-      this.logger.info('advance', `this command is type C. [${line}]`)
+      // this.log.info(`${Object.getOwnPropertyNames(Parser.prototype)}`);
+      this.log.advance(`this command is type C. [${line}]`)
     }
   }
 
   commandType(line: string) {
-    const a = line.match(COMMAND.A.reg)
-    if (a) {
+    if (line.match(COMMAND.A.reg)) {
       return COMMAND.A
     }
-    const c = line.match(COMMAND.C.reg)
-    if (c) {
+    if (line.match(COMMAND.C.reg)) {
       return COMMAND.C
     }
-    const l = line.match(COMMAND.L.reg)
-    if (l) {
+    if (line.match(COMMAND.L.reg)) {
       return COMMAND.L
     }
   }
 
   symbol(line: string, command: any) {
-    this.logger.info('symbol', `command: ${command.type}, line: [${line}]`)
+    this.log.symbol(`command: ${command.type}, line: [${line}]`)
 
     const result = line.match(command.reg)
     if (result === null) {

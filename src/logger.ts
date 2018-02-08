@@ -9,10 +9,14 @@ const white = '\u001b[37m'
 const reset = '\u001b[0m'
 
 export default class Logger {
-  class: string
+  $class: any
+  [key: string]: Function
 
-  constructor(classname: string) {
-    this.class = classname
+  constructor($class: any) {
+    this.class = $class.name
+    Object.getOwnPropertyNames($class.prototype).forEach((m: string) => {
+      this[m] = this.info.bind(this, m)
+    })
   }
 
   info(method: string, str: any) {
