@@ -1,5 +1,6 @@
 import * as fs from 'fs-extra'
 import { createInterface, ReadLine } from 'readline'
+import Logger from './logger'
 
 const COMMAND = {
   // A_COMMAND: @Xxxを表し、Xxxはシンボルか10進数の数
@@ -19,12 +20,15 @@ const COMMAND = {
   },
 }
 
+
 export default class Parser {
   readLine: ReadLine
   filepath: string
+  logger: Logger
 
   constructor(filepath: string) {
     this.filepath = filepath
+    this.logger = new Logger(Parser.name)
   }
 
   load() {
@@ -47,7 +51,7 @@ export default class Parser {
     if (this.hasMoreCommands(line)) {
       this.advance(line)
     } else {
-      console.log(`[skip no meaning line]: ${line}`)
+      this.logger.info('parse', `[skip no meaning line]: ${line}`)
     }
   }
 
@@ -67,7 +71,8 @@ export default class Parser {
     const symbol = COMMAND.C === command ? null : this.symbol(line, command)
 
     if (!symbol) {
-      console.log(`[symbol] this command is type C. [${line}]`)
+      // this.logger.info(`${Object.getOwnPropertyNames(Parser.prototype)}`);
+      this.logger.info('advance', `this command is type C. [${line}]`)
     }
   }
 
@@ -87,13 +92,12 @@ export default class Parser {
   }
 
   symbol(line: string, command: any) {
-    console.log(`[symbol] command: ${JSON.stringify(command)}, line: ${line}`)
+    this.logger.info('symbol', `command: ${command.type}, line: [${line}]`)
 
     const result = line.match(command.reg)
     if (result === null) {
-      throw new Error(`[can't parse a line] command: ${command.type}, line: ${line}`)
+      throw new Error(`[can't parse a line] command: ${command.type}, line: [${line}]`)
     }
-    // console.log(`TYPE: ${command.type}, reuslt: ${JSON.stringify(result)}`)
     return result[1]
   }
 }
