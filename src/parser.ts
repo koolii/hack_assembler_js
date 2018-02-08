@@ -1,7 +1,6 @@
 import * as fs from 'fs-extra'
 import { createInterface, ReadLine } from 'readline'
 
-
 const COMMAND = {
   // A_COMMAND: @Xxxを表し、Xxxはシンボルか10進数の数
   A: {
@@ -36,7 +35,8 @@ export default class Parser {
 
     readLine.on('line', (line) => {
       // console.log(`[coming a line]: ${line}`)
-      this.parse(line)
+      const formatedLine = this.cutTrash(line)
+      this.parse(formatedLine)
     })
 
     this.readLine = readLine;
@@ -51,6 +51,18 @@ export default class Parser {
     }
   }
 
+  cutTrash(plainLine: string) {
+    const fillOutEmpty = plainLine.replace(/ /g, '')
+    // 行の後ろに記述してあるコメント(//以降)を削除する実装をする必要がある
+    // 無意味な空白を削除する必要がある
+    const hasCommentCharacter = fillOutEmpty.match('//')
+    const line = !hasCommentCharacter ? plainLine : plainLine.substring(0, hasCommentCharacter.index)
+
+    console.log(`[cutTrash] ${line}`)
+
+    return line
+  }
+
   hasMoreCommands(line: string) {
     return line.match(COMMAND.A.reg) || line.match(COMMAND.C.reg) || line.match(COMMAND.L.reg)
   }
@@ -58,6 +70,10 @@ export default class Parser {
   advance(line: string) {
     const command = this.commandType(line)
     const symbol = COMMAND.C === command ? null : this.symbol(line, command)
+
+    if (!symbol) {
+      console.log(`[symbol] this command is type C. [${line}]`)
+    }
   }
 
   commandType(line: string) {
@@ -77,9 +93,6 @@ export default class Parser {
 
   symbol(line: string, command: any) {
     console.log(`[symbol] command: ${JSON.stringify(command)}, line: ${line}`)
-
-    // 行の後ろに記述してあるコメント(//以降)を削除する実装をする必要がある
-    // 無意味な空白を削除する必要がある
 
     const result = line.match(command.reg)
     if (result === null) {
