@@ -1,5 +1,6 @@
 import * as fs from 'fs-extra'
 import { createInterface, ReadLine } from 'readline'
+import constants from './constants'
 import Logger from './logger'
 
 const COMMAND = {
@@ -12,6 +13,7 @@ const COMMAND = {
   C: {
     reg: /[=|;]/,
     type: 'C_COMMAND',
+    parse: 'todo make reg taht separate every MNEMONIC',
   },
   // L_COMMAND: 疑似コマンド`(Xxx)`を意味し、Xxxはシンボルとなる
   L: {
@@ -68,11 +70,13 @@ export default class Parser {
 
   advance(line: string) {
     const command = this.commandType(line)
-    const symbol = COMMAND.C === command ? null : this.symbol(line, command)
 
-    if (!symbol) {
-      // this.log.info(`${Object.getOwnPropertyNames(Parser.prototype)}`);
+    if (COMMAND.C === command) {
       this.log.advance(`this command is type C. [${line}]`)
+      const result = this.parseC(line)
+    } else {
+      this.log.advance(`this command is type A or L. [${line}]`)
+      const symbol = this.symbol(line, command)
     }
   }
 
@@ -97,4 +101,16 @@ export default class Parser {
     }
     return result[1]
   }
+
+  parseC(line: string) {
+    this.log.parseC(JSON.stringify(constants.MNEMONIC.DEST))
+    // todo Cコマンドを分解してそれぞれのメソッドの引数にする
+    // そんなにプログラムの見通しが悪くなければadvanceメソッドに統合してしまっても良いかも
+    const dest = this.dest()
+    const comp = this.comp()
+    const jump = this.jump()
+  }
+  dest() {}
+  comp() {}
+  jump() {}
 }
