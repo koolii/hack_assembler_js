@@ -13,7 +13,7 @@ const COMMAND = {
   C: {
     reg: /[=|;]/,
     type: 'C_COMMAND',
-    parse: 'todo make reg taht separate every MNEMONIC',
+    parse: /((.+)=)?([^;]+)(;(.+))?/,
   },
   // L_COMMAND: 疑似コマンド`(Xxx)`を意味し、Xxxはシンボルとなる
   L: {
@@ -35,9 +35,7 @@ export default class Parser {
 
   load() {
     const stream: fs.ReadStream = fs.createReadStream(`${__dirname}/${this.filepath}`, 'utf-8')
-    const readLine: ReadLine = createInterface({
-      input: stream,
-    })
+    const readLine: ReadLine = createInterface({ input: stream })
 
     readLine.on('line', (line) => {
       const formatedLine = this.cutTrash(line)
@@ -72,12 +70,25 @@ export default class Parser {
     const command = this.commandType(line)
 
     if (COMMAND.C === command) {
-      this.log.advance(`this command is type C. [${line}]`)
-      const result = this.parseC(line)
-    } else {
-      this.log.advance(`this command is type A or L. [${line}]`)
-      const symbol = this.symbol(line, command)
+      const parsed = line.match(COMMAND.C.parse)
+      // if parts[2|5] is undefined, returns should be null.
+      const result = {
+        command: command.type,
+        dest: parsed[2] || null,
+        comp: parsed[3],
+        jump: parsed[5] || null,
+      }
+      this.log.advance(`this command is type C. [result: ${JSON.stringify(result)}]`)
+      return result
     }
+
+    const result = {
+      command: command.type,
+      symbol: this.symbol(line, command),
+    }
+    this.log.advance(`this command is type A or L. [${JSON.stringify(result)}]`)
+
+    return result
   }
 
   commandType(line: string) {
@@ -101,16 +112,4 @@ export default class Parser {
     }
     return result[1]
   }
-
-  parseC(line: string) {
-    this.log.parseC(JSON.stringify(constants.MNEMONIC.DEST))
-    // todo Cコマンドを分解してそれぞれのメソッドの引数にする
-    // そんなにプログラムの見通しが悪くなければadvanceメソッドに統合してしまっても良いかも
-    const dest = this.dest()
-    const comp = this.comp()
-    const jump = this.jump()
-  }
-  dest() {}
-  comp() {}
-  jump() {}
 }
