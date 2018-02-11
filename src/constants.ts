@@ -1,4 +1,5 @@
 export default {
+  EOF: 'EOF',
   MNEMONIC: {
     DEST: {
       NONE: '',
