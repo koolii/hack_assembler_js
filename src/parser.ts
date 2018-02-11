@@ -3,24 +3,7 @@ import { createInterface, ReadLine } from 'readline'
 import constants from './constants'
 import Logger from './logger'
 
-const COMMAND = {
-  // A_COMMAND: @Xxxを表し、Xxxはシンボルか10進数の数
-  A: {
-    reg: /@(\w+)/,
-    type: 'A_COMMAND',
-  },
-  // C_COMMAND: dest=comp:jump(destもしくはjumpのどちらかは空であるかもしれない、destが空なら`=`が、jumpが空なら`;`が省略される)
-  C: {
-    reg: /[=|;]/,
-    type: 'C_COMMAND',
-    parse: /((.+)=)?([^;]+)(;(.+))?/,
-  },
-  // L_COMMAND: 疑似コマンド`(Xxx)`を意味し、Xxxはシンボルとなる
-  L: {
-    reg: /\((\w+)\)/,
-    type: 'L_COMMAND',
-  },
-}
+const { COMMAND } = constants
 
 export default class Parser {
   // readLine: ReadLine
@@ -70,6 +53,7 @@ export default class Parser {
       // if parts[2|5] is undefined, returns should be null.
       return {
         command: command.type,
+        symbol: '',
         dest: parsed[2] || null,
         comp: parsed[3],
         jump: parsed[5] || null,
@@ -79,6 +63,9 @@ export default class Parser {
     return {
       command: command.type,
       symbol: this.symbol(line, command),
+      dest: '',
+      comp: '',
+      jump: '',
     }
   }
 
