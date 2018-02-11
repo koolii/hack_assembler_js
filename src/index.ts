@@ -1,5 +1,7 @@
-import Parser from './parser'
+import HackAssembler from './assembler'
 
-const parser = new Parser('mult.asm')
-parser.load()
-
+(async () => {
+  const assembler = new HackAssembler()
+  await assembler.setup()
+  await assembler.exec()
+})()
