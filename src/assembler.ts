@@ -28,20 +28,27 @@ export default class HackAssembler {
 
     await this.writer.remove()
 
-    while (1) {
+    while (true) {
       const parsed: IParser = this.parser.advance()
-      if (!parsed) break
-      // this.logger.exec(JSON.stringify(parsed))
+      if (!parsed) {
+        break
+      }
 
-      const encoded = this.code.compile(parsed)
-      if (encoded) {
-        await this.writer.write(encoded)
-        continue
-      } else if (parsed.command === contents.COMMAND.A.type) {
-        // symbolはまずは無視して、只単純にバイナリに変更を行なう
-        const binary = Number(parsed.symbol).toString(2)
-        const paddedBinary = ('0000000000000000' + binary).slice(-16)
-        await this.writer.write(paddedBinary)
+      switch (parsed.command) {
+        case contents.COMMAND.A.type:
+          // symbolはまずは無視して、只単純にバイナリに変更を行なう
+          const binary = Number(parsed.symbol).toString(2)
+          const paddedBinary = ('0000000000000000' + binary).slice(-16)
+          await this.writer.write(paddedBinary)
+          break
+        case contents.COMMAND.C.type:
+          // this.logger.exec(JSON.stringify(parsed))
+          // todo なぜか17文字になってる箇所がある
+          const encoded = this.code.compile(parsed)
+          await this.writer.write(encoded)
+          break
+        default:
+          break
       }
     }
   }
