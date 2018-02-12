@@ -1,4 +1,6 @@
 export default Object.freeze({
+  ASM_FILE: '.asm',
+  HACK_FILE: '.hack',
   EOF: 'EOF',
   COMMAND: {
     // A_COMMAND: @Xxxを表し、Xxxはシンボルか10進数の数

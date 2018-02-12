@@ -86,7 +86,6 @@ export default class Parser {
   }
 
   symbol(line: string, command: any) {
-    // this.log.symbol(`command: ${command.type}, line: [${line}]`)
     const result = line.match(command.reg)
     if (result === null) {
       throw new Error(`[can't parse a line] command: ${command.type}, line: [${line}]`)
