@@ -3,81 +3,74 @@ import { createInterface, ReadLine } from 'readline'
 import constants from './constants'
 import Logger from './logger'
 
-const COMMAND = {
-  // A_COMMAND: @Xxxを表し、Xxxはシンボルか10進数の数
-  A: {
-    reg: /@(\w+)/,
-    type: 'A_COMMAND',
-  },
-  // C_COMMAND: dest=comp:jump(destもしくはjumpのどちらかは空であるかもしれない、destが空なら`=`が、jumpが空なら`;`が省略される)
-  C: {
-    reg: /[=|;]/,
-    type: 'C_COMMAND',
-    parse: 'todo make reg taht separate every MNEMONIC',
-  },
-  // L_COMMAND: 疑似コマンド`(Xxx)`を意味し、Xxxはシンボルとなる
-  L: {
-    reg: /\((\w+)\)/,
-    type: 'L_COMMAND',
-  },
-}
-
+const { COMMAND } = constants
 
 export default class Parser {
-  readLine: ReadLine
+  // readLine: ReadLine
   filepath: string
   log: Logger
+  buffer: string[]
 
   constructor(filepath: string) {
     this.filepath = filepath
     this.log = new Logger(Parser)
+    this.buffer = []
   }
 
-  load() {
-    const stream: fs.ReadStream = fs.createReadStream(`${__dirname}/${this.filepath}`, 'utf-8')
-    const readLine: ReadLine = createInterface({
-      input: stream,
-    })
+  // this.filepathに登録されているパスのファイルを読み込む
+  readFile() {
+    return new Promise((resolve) => {
+      const stream: fs.ReadStream = fs.createReadStream(`${__dirname}/${this.filepath}`, 'utf-8')
+      const readLine: ReadLine = createInterface({ input: stream })
 
-    readLine.on('line', (line) => {
-      const formatedLine = this.cutTrash(line)
-      if (formatedLine !== '') {
-        this.parse(formatedLine)
-      }
-    })
+      readLine
+        .on('line', (line) => {
+          // remove empty letter and comment part
+          const fillOutEmpty = line.replace(/ /g, '')
+          const hasCommentCharacter = fillOutEmpty.match('//')
+          const formatedLine = !hasCommentCharacter ? fillOutEmpty : fillOutEmpty.substring(0, hasCommentCharacter.index)
 
-    this.readLine = readLine;
+          if (formatedLine !== '') {
+            this.buffer.push(formatedLine)
+          }
+        })
+        .on('close', () => {
+          this.buffer.push(constants.EOF)
+          resolve()
+        })
+    })
   }
 
-  parse(line: string) {
-    if (this.hasMoreCommands(line)) {
-      this.advance(line)
-    } else {
-      this.log.parse(`[skip no meaning line]: ${line}`)
+  advance() {
+    const line: string = this.buffer.shift()
+    if (line === constants.EOF || this.hasMoreCommands(line)) {
+      return null
     }
-  }
 
-  cutTrash(plainLine: string) {
-    // remove empty letter and comment part
-    const fillOutEmpty = plainLine.replace(/ /g, '')
-    const hasCommentCharacter = fillOutEmpty.match('//')
-    return !hasCommentCharacter ? fillOutEmpty : fillOutEmpty.substring(0, hasCommentCharacter.index)
+    const command = this.commandType(line)
+    if (COMMAND.C === command) {
+      const parsed = line.match(COMMAND.C.parse)
+      // if parts[2|5] is undefined, returns should be null.
+      return {
+        command: command.type,
+        symbol: '',
+        dest: parsed[2] || null,
+        comp: parsed[3],
+        jump: parsed[5] || null,
+      }
+    }
+
+    return {
+      command: command.type,
+      symbol: this.symbol(line, command),
+      dest: '',
+      comp: '',
+      jump: '',
+    }
   }
 
   hasMoreCommands(line: string) {
-    return line.match(COMMAND.A.reg) || line.match(COMMAND.C.reg) || line.match(COMMAND.L.reg)
-  }
-
-  advance(line: string) {
-    const command = this.commandType(line)
-
-    if (COMMAND.C === command) {
-      this.log.advance(`this command is type C. [${line}]`)
-      const result = this.parseC(line)
-    } else {
-      this.log.advance(`this command is type A or L. [${line}]`)
-      const symbol = this.symbol(line, command)
-    }
+    return !line && !line.match(COMMAND.A.reg) && !line.match(COMMAND.C.reg) && !line.match(COMMAND.L.reg)
   }
 
   commandType(line: string) {
@@ -93,24 +86,11 @@ export default class Parser {
   }
 
   symbol(line: string, command: any) {
-    this.log.symbol(`command: ${command.type}, line: [${line}]`)
-
+    // this.log.symbol(`command: ${command.type}, line: [${line}]`)
     const result = line.match(command.reg)
     if (result === null) {
       throw new Error(`[can't parse a line] command: ${command.type}, line: [${line}]`)
     }
     return result[1]
   }
-
-  parseC(line: string) {
-    this.log.parseC(JSON.stringify(constants.MNEMONIC.DEST))
-    // todo Cコマンドを分解してそれぞれのメソッドの引数にする
-    // そんなにプログラムの見通しが悪くなければadvanceメソッドに統合してしまっても良いかも
-    const dest = this.dest()
-    const comp = this.comp()
-    const jump = this.jump()
-  }
-  dest() {}
-  comp() {}
-  jump() {}
 }

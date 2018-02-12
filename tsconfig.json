@@ -9,6 +9,7 @@
     "removeComments": true,
     "preserveConstEnums": true,
     "sourceMap": true,
+    "suppressImplicitAnyIndexErrors": true,
     "types": [
       "node"
     ]
