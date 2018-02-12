@@ -31,18 +31,18 @@ export default class HackAssembler {
     while (1) {
       const parsed: IParser = this.parser.advance()
       if (!parsed) break
-      this.logger.exec(JSON.stringify(parsed))
+      // this.logger.exec(JSON.stringify(parsed))
 
       const encoded = this.code.compile(parsed)
       if (encoded) {
-        this.logger.exec(JSON.stringify(encoded))
+        await this.writer.write(encoded)
+        continue
       } else if (parsed.command === contents.COMMAND.A.type) {
         // symbolはまずは無視して、只単純にバイナリに変更を行なう
-        this.logger.exec(JSON.stringify(parsed))
-        this.logger.exec(Number(parsed.symbol).toString(2))
+        const binary = Number(parsed.symbol).toString(2)
+        const paddedBinary = ('0000000000000000' + binary).slice(-16)
+        await this.writer.write(paddedBinary)
       }
-
-      await this.writer.write(JSON.stringify(parsed))
     }
   }
 }

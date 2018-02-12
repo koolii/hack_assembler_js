@@ -11,7 +11,7 @@ export default class Writer {
   }
 
   async write(line: string) {
-    this.logger.write(`write line: ${line}`)
+    // this.logger.write(`write line: ${line}`)
     await fs.appendFile(this.filepath, `${line}\n`, { encoding: 'utf-8' })
   }
 
