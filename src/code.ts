@@ -20,7 +20,7 @@ export default class Code {
       comp: this.comp(parsed.comp),
       jump: this.jump(parsed.jump),
     }
-    return '111' + this.getAbit(parsed.comp) + r.dest + r.comp + r.jump
+    return `111${this.getAbit(parsed.comp)}${r.dest}${r.comp}${r.jump}`
   }
 
   getAbit(comp: string) {
