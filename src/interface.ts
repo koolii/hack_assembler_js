@@ -10,3 +10,9 @@ export interface ICode {
   comp: string
   jump: string
 }
+export abstract class CCommand {
+  dest: string
+  comp: string
+  jump: string
+  get() { return this.dest + this.comp + this.jump }
+}

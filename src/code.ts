@@ -15,12 +15,16 @@ export default class Code {
     if (parsed.command !== COMMAND.C.type) {
       return null
     }
-    const result: ICode = {
+    const r: ICode = {
       dest: this.dest(parsed.dest),
       comp: this.comp(parsed.comp),
       jump: this.jump(parsed.jump),
     }
-    return result
+    return '111' + this.getAbit(parsed.comp) + r.dest + r.comp + r.jump
+  }
+
+  getAbit(comp: string) {
+    return comp.indexOf('M') !== -1 ? 1 : 0
   }
 
   dest(str: string) {
