@@ -1,3 +1,4 @@
+import Utils from './utils'
 import Logger from './logger'
 import constants from './constants'
 
@@ -15,7 +16,7 @@ export default class SymbolTable {
 
   addEntry(symbol: string, decimalAddr: number) {
     if (!this.containes(symbol)) {
-      this.table[symbol] = decimalAddr
+      this.table[symbol] = Utils.getPaddedBinary(decimalAddr)
     }
   }
 
