@@ -14,7 +14,7 @@ export default class SymbolTable {
     })
   }
 
-  addEntry(symbol: string, decimalAddr: number) {
+  addEntry(symbol: string, decimalAddr: number|string) {
     if (!this.containes(symbol)) {
       this.table[symbol] = Utils.getPaddedBinary(decimalAddr)
     }
