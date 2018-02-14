@@ -1,7 +1,9 @@
 import Parser from './parser'
 import Code from './code'
 import Writer from './writer'
+import SymbolTable from './symbol-table'
 import { IParser } from './interface'
+import Utils from './utils'
 import Logger from './logger'
 import constants from './constants'
 
@@ -9,6 +11,7 @@ export default class HackAssembler {
   parser: Parser
   code: Code
   writer: Writer
+  symbol: SymbolTable
   logger: Logger
 
   constructor() {
@@ -18,11 +21,18 @@ export default class HackAssembler {
     this.parser = new Parser(filepaths[0])
     this.writer = new Writer(filepaths[0])
     this.code = new Code()
+    this.symbol = new SymbolTable()
   }
 
   async setup() {
     this.logger.setup('Start setup()')
+    this.symbol.printCurrent()
     await this.parser.readFile()
+  }
+
+  async beforeExec() {
+    // create symbol table
+    this.parser.
   }
 
   async exec() {
@@ -39,13 +49,10 @@ export default class HackAssembler {
       switch (parsed.command) {
         case constants.COMMAND.A.type:
           // symbolはまずは無視して、只単純にバイナリに変更を行なう
-          const binary = Number(parsed.symbol).toString(2)
-          const paddedBinary = ('0000000000000000' + binary).slice(-16)
-          await this.writer.write(paddedBinary)
+          await this.writer.write(Utils.getPaddedBinary(parsed.symbol))
           break
         case constants.COMMAND.C.type:
           // this.logger.exec(JSON.stringify(parsed))
-          // todo なぜか17文字になってる箇所がある
           const encoded = this.code.compile(parsed)
           await this.writer.write(encoded)
           break

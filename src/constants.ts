@@ -1,4 +1,8 @@
 export default Object.freeze({
+  LOAD: {
+    SYMBOL: 'SYMBOL',
+    PARSE: 'PARSE',
+  },
   ASM_FILE: '.asm',
   HACK_FILE: '.hack',
   EOF: 'EOF',

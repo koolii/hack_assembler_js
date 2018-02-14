@@ -41,6 +41,7 @@ export default class Parser {
     })
   }
 
+  // todo generatorに変えても良いかも（shift()でthis.bufferの中身を捨てたくない）
   advance() {
     const line: string = this.buffer.shift()
     if (line === constants.EOF || this.hasMoreCommands(line)) {
