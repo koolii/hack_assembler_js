@@ -16,11 +16,3 @@ export abstract class CCommand {
   jump: string
   get() { return this.dest + this.comp + this.jump }
 }
-export interface ILine {
-  line: string
-  command: string
-  symbol: string
-  dest: string
-  comp: string
-  jump: string
-}
