@@ -30,34 +30,10 @@ export default class HackAssembler {
     await this.parser.readFile()
   }
 
-  async before() {
+  before() {
     this.logger.before('Start before()')
-    // create symbol table
     const readLine: Function = this.parser.getReader()
-
-    // 定義済シンボル
-    // ラベルシンボル
-    //    (Xxx)と言う疑似コマンドはXxxと言うラベルになる
-    // 変数シンボル
-    //    順番にメモリに割り当てられ、16から始まる
-    // todo 上記の様に区別が必要になってくるので、シンボルがどういうシンボルなのかを判定できなければならない
-    // todo ここの処理を全てSymbolTableクラスに移す。がその兼ね合いで、Parser.addvance()の参照がないので
-    // Parser.getReader()の時点で既にパースが完了しているものを配列として持っておいたほうが効率が良い
-    let nextAddr = 1
-    while (true) {
-      const parsed: IParser = this.parser.advance(readLine())
-      this.logger.before(JSON.stringify(parsed))
-      if (!parsed) {
-        break
-      }
-      if (parsed.symbol) {
-        // 疑似コマンドの次のコマンドの位置を参照する
-        this.symbol.addEntry(parsed.symbol, nextAddr);
-      }
-      nextAddr += 1
-    }
-
-    this.symbol.printCurrent()
+    this.symbol.createTable(readLine)
   }
 
   async exec() {
@@ -69,7 +45,7 @@ export default class HackAssembler {
     const readLine: Function = this.parser.getReader()
 
     while (true) {
-      const parsed: IParser = this.parser.advance(readLine())
+      const parsed: IParser = readLine()
       if (!parsed) {
         break
       }
