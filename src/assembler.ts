@@ -33,7 +33,7 @@ export default class HackAssembler {
   before() {
     this.logger.before('Start before()')
     const readLine: Function = this.parser.getReader()
-    this.symbol.createTable(readLine)
+    this.symbol.createTableOnlyFunction(readLine)
   }
 
   async exec() {
@@ -44,6 +44,9 @@ export default class HackAssembler {
     await this.writer.remove()
     const readLine: Function = this.parser.getReader()
 
+    // 本当はここに書きたくない
+    let variableAddr = 16
+
     while (true) {
       const parsed: IParser = readLine()
       if (!parsed) {
@@ -52,6 +55,15 @@ export default class HackAssembler {
 
       switch (parsed.command) {
         case constants.COMMAND.A.type:
+          const symbol = parsed.symbol
+          // @iとか@numとか
+          // @423423とかは無視する
+          if (!this.symbol.containes(symbol) && isNaN(Number(symbol))) {
+            // 変数をSymbolTableに登録する
+            this.symbol.addEntry(symbol, variableAddr)
+            variableAddr += 1
+          }
+
           // symbolはまずは無視して、只単純にバイナリに変更を行なう
           await this.writer.write(Utils.getPaddedBinary(parsed.symbol))
           break
@@ -65,6 +77,7 @@ export default class HackAssembler {
       }
     }
 
+    this.symbol.printCurrent()
     this.parser.clear()
   }
 }
