@@ -30,18 +30,31 @@ export default class HackAssembler {
     await this.parser.readFile()
   }
 
-  // async beforeExec() {
-  //   // create symbol table
-  //   this.parser.
-  // }
+  async before() {
+    this.logger.before('Start before()')
+    // create symbol table
+    const readLine: Function = this.parser.getReader()
+
+    while (true) {
+      const parsed: IParser = this.parser.advance(readLine())
+      if (!parsed) {
+        break
+      }
+      if (parsed.command !== constants.COMMAND.C.type) {
+        continue
+      }
+      // createSymbolTable by line has command_type C
+      // this.symbol.xxx(parsed)
+    }
+  }
 
   async exec() {
     this.logger.exec('Start exec()')
 
+    this.before()
+
     await this.writer.remove()
     const readLine: Function = this.parser.getReader()
-
-    this.logger.exec(readLine())
 
     while (true) {
       const parsed: IParser = this.parser.advance(readLine())

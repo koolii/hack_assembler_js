@@ -97,7 +97,6 @@ export default class Parser {
 
   getReader() {
     const lines = this.buffer.slice(0);
-    this.log.getReader(JSON.stringify(lines))
     function* generate() {
       while (lines.length !== 0) {
         yield lines.shift()
