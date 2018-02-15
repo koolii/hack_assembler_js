@@ -2,7 +2,7 @@ import * as fs from 'fs-extra'
 import { createInterface, ReadLine } from 'readline'
 import constants from './constants'
 import Logger from './logger'
-import { ILine } from './interface'
+import { IParser } from './interface'
 
 const { COMMAND } = constants
 
@@ -10,7 +10,7 @@ export default class Parser {
   // readLine: ReadLine
   filepath: string
   log: Logger
-  buffer: string[]
+  buffer: IParser[]
 
   constructor(filepath: string) {
     this.filepath = filepath
@@ -32,18 +32,19 @@ export default class Parser {
           const formatedLine = !hasCommentCharacter ? fillOutEmpty : fillOutEmpty.substring(0, hasCommentCharacter.index)
 
           if (formatedLine !== '') {
-            this.buffer.push(formatedLine)
+            this.buffer.push(this.advance(formatedLine))
           }
         })
         .on('close', () => {
-          this.buffer.push(constants.EOF)
+          // this.buffer.push(constants.EOF)
           resolve()
         })
     })
   }
 
   // todo generatorに変えても良いかも（shift()でthis.bufferの中身を捨てたくない）
-  advance(line: string) {
+  advance(line: string) : IParser {
+    this.log.advance(JSON.stringify(line))
     // const line: string = this.buffer.shift()
     if (line === constants.EOF || this.hasMoreCommands(line)) {
       return null
@@ -71,7 +72,7 @@ export default class Parser {
     }
   }
 
-  hasMoreCommands(line: string) {
+  hasMoreCommands(line: string) : boolean {
     return !line && !line.match(COMMAND.A.reg) && !line.match(COMMAND.C.reg) && !line.match(COMMAND.L.reg)
   }
 
@@ -87,7 +88,7 @@ export default class Parser {
     }
   }
 
-  symbol(line: string, command: any) {
+  symbol(line: string, command: any) : string {
     const result = line.match(command.reg)
     if (result === null) {
       throw new Error(`[can't parse a line] command: ${command.type}, line: [${line}]`)
@@ -95,7 +96,7 @@ export default class Parser {
     return result[1]
   }
 
-  getReader() {
+  getReader() : Function {
     const lines = this.buffer.slice(0);
     function* generate() {
       while (lines.length !== 0) {
@@ -106,7 +107,7 @@ export default class Parser {
     return () => iterator.next().value
   }
 
-  clear() {
+  clear() : void {
     this.buffer = []
     this.filepath = ''
   }
