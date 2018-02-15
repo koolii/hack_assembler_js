@@ -2,6 +2,7 @@ import * as fs from 'fs-extra'
 import { createInterface, ReadLine } from 'readline'
 import constants from './constants'
 import Logger from './logger'
+import { ILine } from './interface'
 
 const { COMMAND } = constants
 
@@ -42,8 +43,8 @@ export default class Parser {
   }
 
   // todo generatorに変えても良いかも（shift()でthis.bufferの中身を捨てたくない）
-  advance() {
-    const line: string = this.buffer.shift()
+  advance(line: string) {
+    // const line: string = this.buffer.shift()
     if (line === constants.EOF || this.hasMoreCommands(line)) {
       return null
     }
@@ -92,5 +93,22 @@ export default class Parser {
       throw new Error(`[can't parse a line] command: ${command.type}, line: [${line}]`)
     }
     return result[1]
+  }
+
+  getReader() {
+    const lines = this.buffer.slice(0);
+    this.log.getReader(JSON.stringify(lines))
+    function* generate() {
+      while (lines.length !== 0) {
+        yield lines.shift()
+      }
+    }
+    const iterator = generate()
+    return () => iterator.next().value
+  }
+
+  clear() {
+    this.buffer = []
+    this.filepath = ''
   }
 }
