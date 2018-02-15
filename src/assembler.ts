@@ -30,18 +30,21 @@ export default class HackAssembler {
     await this.parser.readFile()
   }
 
-  async beforeExec() {
-    // create symbol table
-    this.parser.
-  }
+  // async beforeExec() {
+  //   // create symbol table
+  //   this.parser.
+  // }
 
   async exec() {
     this.logger.exec('Start exec()')
 
     await this.writer.remove()
+    const readLine: Function = this.parser.getReader()
+
+    this.logger.exec(readLine())
 
     while (true) {
-      const parsed: IParser = this.parser.advance()
+      const parsed: IParser = this.parser.advance(readLine())
       if (!parsed) {
         break
       }
@@ -60,5 +63,7 @@ export default class HackAssembler {
           break
       }
     }
+
+    this.parser.clear()
   }
 }
