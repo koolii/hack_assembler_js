@@ -31,4 +31,7 @@ export default class SymbolTable {
   printCurrent() {
     this.logger.printCurrent(JSON.stringify(this.table))
   }
+
+  createTable() {
+  }
 }
