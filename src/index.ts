@@ -4,4 +4,5 @@ import HackAssembler from './assembler'
   const assembler = new HackAssembler()
   await assembler.setup()
   await assembler.exec()
+  assembler.after()
 })()

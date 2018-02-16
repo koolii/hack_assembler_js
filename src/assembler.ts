@@ -36,6 +36,10 @@ export default class HackAssembler {
     this.symbol.createTableOnlyFunction(readLine)
   }
 
+  after() {
+    this.logger.after(`Check output file: ${this.writer.filepath}`)
+  }
+
   async exec() {
     this.logger.exec('Start exec()')
 
@@ -55,17 +59,25 @@ export default class HackAssembler {
 
       switch (parsed.command) {
         case constants.COMMAND.A.type:
+          let addr = ''
           const symbol = parsed.symbol
+          const move = isNaN(Number(symbol))
           // @iとか@numとか
           // @423423とかは無視する
-          if (!this.symbol.containes(symbol) && isNaN(Number(symbol))) {
-            // 変数をSymbolTableに登録する
-            this.symbol.addEntry(symbol, variableAddr)
-            variableAddr += 1
+          if (move) {
+            // 登録されていない場合は変数を登録する
+            if (!this.symbol.containes(symbol)) {
+              // 変数をSymbolTableに登録する
+              addr = this.symbol.addEntry(symbol, variableAddr)
+              variableAddr += 1
+            } else {
+              // 登録されている場合はSymbolTableからアドレスを取得する
+              addr = this.symbol.getAddress(symbol)
+            }
+          } else {
+            addr = Utils.getPaddedBinary(symbol)
           }
-
-          // symbolはまずは無視して、只単純にバイナリに変更を行なう
-          await this.writer.write(Utils.getPaddedBinary(parsed.symbol))
+          await this.writer.write(Utils.getPaddedBinary(addr))
           break
         case constants.COMMAND.C.type:
           // this.logger.exec(JSON.stringify(parsed))
@@ -77,7 +89,7 @@ export default class HackAssembler {
       }
     }
 
-    this.symbol.printCurrent()
+    // this.symbol.printCurrent()
     this.parser.clear()
   }
 }

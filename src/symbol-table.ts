@@ -3,24 +3,30 @@ import Logger from './logger'
 import constants from './constants'
 import { IParser } from './interface'
 
+const AorC: string[] = [constants.COMMAND.A.type, constants.COMMAND.C.type]
+
 export default class SymbolTable {
   logger: Logger
   table: Object
+  decimalTable: Object
 
   constructor() {
     this.logger = new Logger(SymbolTable)
     this.table = {}
+    this.decimalTable = {}
     Object.keys(constants.SYMBOL).forEach((key) => {
       this.addEntry(key, constants.SYMBOL[key])
     })
   }
 
-  addEntry(symbol: string, decimalAddr: number|string) {
+  addEntry(symbol: string, decimalAddr: number|string): string {
     if (this.containes(symbol)) {
       throw new Error('it has already registered symbol table.')
     }
-    // this.table[symbol] = Utils.getPaddedBinary(decimalAddr)
-    this.table[symbol] = decimalAddr
+    const result = Utils.getPaddedBinary(decimalAddr)
+    this.table[symbol] = result
+    this.decimalTable[symbol] = decimalAddr
+    return result
   }
 
   containes(symbol: string) {
@@ -32,7 +38,8 @@ export default class SymbolTable {
   }
 
   printCurrent() {
-    this.logger.printCurrent(JSON.stringify(this.table))
+    this.logger.printCurrent(JSON.stringify(this.table, null, '\t'))
+    this.logger.printCurrent(JSON.stringify(this.decimalTable, null, '\t'))
   }
 
     // P74-P80参照
@@ -44,13 +51,20 @@ export default class SymbolTable {
     // todo 上記の様に区別が必要になってくるので、シンボルがどういうシンボルなのかを判定できなければならない
     // todo ここの処理を全てSymbolTableクラスに移す。がその兼ね合いで、Parser.addvance()の参照がないので
     // Parser.getReader()の時点で既にパースが完了しているものを配列として持っておいたほうが効率が良い
+
+  // P122の@LOOPは4を表す(100)だった
+  // @ENDは18を指しているので、ラベルシンボルの行はインクリメントはせずに、かつ、次の行のアドレス(biary)を返すようにしてあげる
+  // ここから次のアドレスというのは何なのかを推測している
   createTableOnlyFunction(readLine: Function) {
-    let funcAddr = 0
+    let line = 0
     while (true) {
       const parsed: IParser = readLine()
-      // this.logger.createTable(JSON.stringify(parsed))
       if (!parsed) {
         break
+      }
+      // 一行進める(Lコマンドは関数定義なので一行として換算しない)
+      if (AorC.includes(parsed.command)) {
+        line += 1
       }
       // 一応確認する
       if (!parsed.symbol) {
@@ -61,23 +75,8 @@ export default class SymbolTable {
       if (parsed.symbol && constants.COMMAND.L.type === parsed.command && !this.containes(parsed.symbol)) {
         // 疑似コマンドの次のコマンドの位置を参照する
         // これは次の行を表しているのか、0スタートからの次ということで1になるかわかっていないので調査する
-        funcAddr += 1
-        this.addEntry(parsed.symbol, funcAddr);
+        this.addEntry(parsed.symbol, line + 1);
       }
-
-      // // 変数か関数呼び出しで、登録するのは変数の方のみ、数字の場合は飛ばす
-      // if (constants.COMMAND.A.type === parsed.command && !this.containes(parsed.symbol)) {
-      //   const symbol = parsed.symbol
-      //   // symbolが数値だった場合
-      //   // @100
-      //   // M=AでMに100を代入
-      //   if (!isNaN(Number(symbol))) {
-      //     continue
-      //   }
-      //   // 変数定義
-      //   this.addEntry(symbol, variableAddr);
-      //   variableAddr += 1
-      // }
     }
   }
 }
