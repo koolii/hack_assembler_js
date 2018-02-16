@@ -1,4 +1,5 @@
 export interface IParser {
+  line: string
   command: string
   dest: string|null
   comp: string|null

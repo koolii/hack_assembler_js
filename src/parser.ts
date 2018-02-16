@@ -55,6 +55,7 @@ export default class Parser {
       const parsed = line.match(COMMAND.C.parse)
       // if parts[2|5] is undefined, returns should be null.
       return {
+        line,
         command: command.type,
         symbol: '',
         dest: parsed[2] || null,
@@ -64,6 +65,7 @@ export default class Parser {
     }
 
     return {
+      line,
       command: command.type,
       symbol: this.symbol(line, command),
       dest: '',
