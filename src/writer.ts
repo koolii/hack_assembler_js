@@ -12,12 +12,14 @@ export default class Writer {
   }
 
   async write(line: string) {
-    // this.logger.write(`write line: ${line}`)
     await fs.appendFile(this.filepath, `${line}\n`, { encoding: 'utf-8' })
   }
 
   async remove() {
-    this.logger.remove(this.filepath)
-    await fs.remove(this.filepath)
+    const result = await fs.pathExists(this.filepath)
+    if (result) {
+      this.logger.remove(this.filepath)
+      await fs.remove(this.filepath)
+    }
   }
 }

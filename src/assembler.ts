@@ -64,6 +64,8 @@ export default class HackAssembler {
           const move = isNaN(Number(symbol))
           // @iとか@numとか
           // @423423とかは無視する
+          this.logger.exec(`[switch] ${JSON.stringify(parsed)}`)
+
           if (move) {
             // 登録されていない場合は変数を登録する
             if (!this.symbol.containes(symbol)) {
@@ -77,10 +79,9 @@ export default class HackAssembler {
           } else {
             addr = Utils.getPaddedBinary(symbol)
           }
-          await this.writer.write(Utils.getPaddedBinary(addr))
+          await this.writer.write(addr)
           break
         case constants.COMMAND.C.type:
-          // this.logger.exec(JSON.stringify(parsed))
           const encoded = this.code.compile(parsed)
           await this.writer.write(encoded)
           break
@@ -89,7 +90,7 @@ export default class HackAssembler {
       }
     }
 
-    // this.symbol.printCurrent()
+    this.symbol.printCurrent()
     this.parser.clear()
   }
 }
