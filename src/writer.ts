@@ -20,6 +20,8 @@ export default class Writer {
     if (result) {
       this.logger.remove(this.filepath)
       await fs.remove(this.filepath)
+    } else {
+      await fs.createFile(this.filepath)
     }
   }
 }

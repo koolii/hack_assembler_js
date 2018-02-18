@@ -42,16 +42,12 @@ export default class SymbolTable {
     this.logger.printCurrent(JSON.stringify(this.decimalTable, null, '\t'))
   }
 
-    // P74-P80参照
-    // 定義済シンボル
-    // ラベルシンボル
-    //    (Xxx)と言う疑似コマンドはXxxと言うラベルになる
-    // 変数シンボル
-    //    順番にメモリに割り当てられ、16から始まる
-    // todo 上記の様に区別が必要になってくるので、シンボルがどういうシンボルなのかを判定できなければならない
-    // todo ここの処理を全てSymbolTableクラスに移す。がその兼ね合いで、Parser.addvance()の参照がないので
-    // Parser.getReader()の時点で既にパースが完了しているものを配列として持っておいたほうが効率が良い
-
+  // P74-P80参照
+  // 定義済シンボル
+  // ラベルシンボル
+  //    (Xxx)と言う疑似コマンドはXxxと言うラベルになる
+  // 変数シンボル
+  //    順番にメモリに割り当てられ、16から始まる
   // P122の@LOOPは4を表す(100)だった
   // @ENDは18を指しているので、ラベルシンボルの行はインクリメントはせずに、かつ、次の行のアドレス(biary)を返すようにしてあげる
   // ここから次のアドレスというのは何なのかを推測している
@@ -75,7 +71,8 @@ export default class SymbolTable {
       if (parsed.symbol && constants.COMMAND.L.type === parsed.command && !this.containes(parsed.symbol)) {
         // 疑似コマンドの次のコマンドの位置を参照する
         // これは次の行を表しているのか、0スタートからの次ということで1になるかわかっていないので調査する
-        this.addEntry(parsed.symbol, line + 1);
+        // => 0スタートで関数を定義している行は無くなる。カウントされないということを考慮する
+        this.addEntry(parsed.symbol, line);
       }
     }
   }
