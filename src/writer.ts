@@ -7,8 +7,9 @@ export default class Writer {
   logger: Logger
 
   constructor(filepath: string) {
-    this.filepath = filepath.replace(constants.ASM_FILE, constants.HACK_FILE)
+    this.filepath = `hack/${filepath.replace(constants.ASM_FILE, constants.HACK_FILE)}`
     this.logger = new Logger(Writer)
+    this.logger.remove(this.filepath)
   }
 
   async write(line: string) {

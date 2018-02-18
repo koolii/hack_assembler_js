@@ -21,7 +21,8 @@ export default class Parser {
   // this.filepathに登録されているパスのファイルを読み込む
   readFile() {
     return new Promise((resolve) => {
-      const stream: fs.ReadStream = fs.createReadStream(`${__dirname}/${this.filepath}`, 'utf-8')
+      // const stream: fs.ReadStream = fs.createReadStream(`${__dirname}/${this.filepath}`, 'utf-8')
+      const stream: fs.ReadStream = fs.createReadStream(`asm/${this.filepath}`, 'utf-8')
       const readLine: ReadLine = createInterface({ input: stream })
 
       readLine

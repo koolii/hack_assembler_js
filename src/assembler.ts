@@ -16,6 +16,10 @@ export default class HackAssembler {
 
   constructor() {
     const filepaths = process.argv.slice(2)
+
+    if (filepaths.length <= 0) {
+      throw new Error('need to requrie some asm path')
+    }
     // 今は決めで１ファイルのみに対応するようにする
     this.logger = new Logger(HackAssembler)
     this.parser = new Parser(filepaths[0])
